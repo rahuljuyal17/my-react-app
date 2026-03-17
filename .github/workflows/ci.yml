@@ -1,5 +1,6 @@
 name: React CI Pipeline
 
+# Trigger on push or PR to main/develop
 on:
   push:
     branches: [main, develop]
@@ -7,58 +8,7 @@ on:
     branches: [main, develop]
 
 jobs:
+  # ── Job 1: Install, Lint, Test, Build ────────────────
   build-and-test:
+    name: Build & Test
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [18.x, 20.x]
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: npm
-
-      - name: Install Dependencies
-        run: npm install   # changed from npm ci (safer)
-
-      - name: Lint (non-blocking)
-        run: npm run lint || true
-
-      - name: Run Tests (non-blocking)
-        run: npm test || true
-
-      - name: Build
-        run: npm run build
-
-      - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist-${{ matrix.node-version }}
-          path: dist/
-
-  # Sonar disabled for now (enable later)
-  # sonar-analysis:
-  #   runs-on: ubuntu-latest
-  #   needs: build-and-test
-  #   steps:
-  #     - name: Checkout Code
-  #       uses: actions/checkout@v4
-  #     - name: Setup Node.js
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: 20.x
-  #     - name: Install Dependencies
-  #       run: npm install
-  #     - name: Run Tests with Coverage
-  #       run: npm test -- --coverage
-  #     - name: SonarQube Scan
-  #       uses: SonarSource/sonarqube-scan-action@master
-  #       env:
-  #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-  #         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
